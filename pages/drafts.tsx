@@ -34,8 +34,15 @@ type Props = {
 };
 
 const Drafts: React.FC<Props> = (props) => {
-  const { data: session } = useSession();
-
+  const { data: session, status} = useSession();
+  if (status === "loading") {
+    // Session data is still loading, display a loading indicator
+    return (
+      <Layout>
+        <div>Loading...</div>
+      </Layout>
+    );
+  }
   console.log("Session:", session);
   console.log("props:", props.drafts);
 
