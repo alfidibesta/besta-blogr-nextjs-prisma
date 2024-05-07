@@ -6,28 +6,30 @@ import Post, { PostProps } from "../components/Post";
 import prisma from "../lib/prisma";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const { data: session } = useSession();
-  // const session = await getSession({ req });
-  
-  const drafts = session 
-    ? await prisma.post.findMany({
-        where: {
-          author: { email: session.user.email },
-          published: false,
-        },
-        include: {
-          author: {
-            select: { name: true },
-          },
-        },
-      })
-    : [];
+  const session = await getSession({ req });
+  if (!session) {
+    res.statusCode = 403;
+    return { props: { drafts: [] } };
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  const drafts = await prisma.post.findMany({
+    where: {
+      author: { email: session.user.email },
+      published: false,
+    },
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
+  });
 
   return {
     props: { drafts },
   };
 };
-
 
 type Props = {
   drafts: PostProps[];
