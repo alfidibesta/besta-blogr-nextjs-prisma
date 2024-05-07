@@ -6,7 +6,9 @@ import Post, { PostProps } from "../components/Post";
 import prisma from "../lib/prisma";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const session = await getSession({ req });
+  const { data: session } = useSession();
+  // const session = await getSession({ req });
+  
   const drafts = session 
     ? await prisma.post.findMany({
         where: {
