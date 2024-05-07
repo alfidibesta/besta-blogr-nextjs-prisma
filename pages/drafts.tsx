@@ -6,29 +6,34 @@ import Post, { PostProps } from "../components/Post";
 import prisma from "../lib/prisma";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const session = await getSession({ req });
-  if (!session) {
-    res.statusCode = 403;
+  try {
+    const session = await getSession({ req });
+    if (!session) {
+      res.statusCode = 403;
+      res.end("Unauthorized access: You need to be authenticated to view this page.");
+      return { props: { drafts: [] } };
+    }
+
+    const drafts = await prisma.post.findMany({
+      where: {
+        author: { email: session.user.email },
+        published: false,
+      },
+      include: {
+        author: {
+          select: { name: true },
+        },
+      },
+    });
+
+    return {
+      props: { drafts },
+    };
+  } catch (error) {
+    console.error("Error fetching drafts:", error);
+    res.statusCode = 500; // Internal Server Error
     return { props: { drafts: [] } };
   }
-
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
-  const drafts = await prisma.post.findMany({
-    where: {
-      author: { email: session.user.email },
-      published: false,
-    },
-    include: {
-      author: {
-        select: { name: true },
-      },
-    },
-  });
-
-  return {
-    props: { drafts },
-  };
 };
 
 type Props = {
@@ -36,17 +41,10 @@ type Props = {
 };
 
 const Drafts: React.FC<Props> = (props) => {
-  const { data: session, status} = useSession();
-  if (status === "loading") {
-    // Session data is still loading, display a loading indicator
-    return (
-      <Layout>
-        <div>Loading...</div>
-      </Layout>
-    );
-  }
+  const { data: session} = useSession();
+
   console.log("Session:", session);
-  console.log("props:", props.drafts);
+  console.log("props:", props);
 
   if (!session) {
     return (
