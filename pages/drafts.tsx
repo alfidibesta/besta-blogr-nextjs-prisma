@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { GetServerSideProps } from "next";
 import { useSession, getSession } from "next-auth/react";
 import Layout from "../components/Layout";
@@ -14,7 +14,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 
   const drafts = await prisma.post.findMany({
     where: {
-      author: { email: session.user.email },
+      // author: { email: session.user.email },
       published: false,
     },
     include: {
@@ -34,21 +34,10 @@ type Props = {
 };
 
 const Drafts: React.FC<Props> = (props) => {
-  const { data: session, status } = useSession();
-
-  useEffect(() => {
-    // Check if session is loaded and user is authenticated
-    if (status === "loading" || !session) return;
-    // Perform any other actions here if needed
-  }, [session, status]);
-
-  if (status === "loading") {
-    return (
-      <Layout>
-        <div>Loading...</div>
-      </Layout>
-    );
-  }
+  const { data: session} = useSession();
+  
+  console.log("Session:", session);
+  console.log("props:", props.drafts);
 
   if (!session) {
     return (
