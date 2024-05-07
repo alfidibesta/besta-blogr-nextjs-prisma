@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { GetServerSideProps } from "next";
 import { useSession, getSession } from "next-auth/react";
 import Layout from "../components/Layout";
@@ -34,10 +34,21 @@ type Props = {
 };
 
 const Drafts: React.FC<Props> = (props) => {
-  const { data: session} = useSession();
+  const { data: session, status } = useSession();
 
-  console.log("Session:", session);
-  console.log("props:", props);
+  useEffect(() => {
+    // Check if session is loaded and user is authenticated
+    if (status === "loading" || !session) return;
+    // Perform any other actions here if needed
+  }, [session, status]);
+
+  if (status === "loading") {
+    return (
+      <Layout>
+        <div>Loading...</div>
+      </Layout>
+    );
+  }
 
   if (!session) {
     return (
