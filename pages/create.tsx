@@ -28,7 +28,7 @@ const Draft: React.FC = () => {
       <div>
         <form onSubmit={submitData}>
           <h1>New Draft</h1>
-          <p>Welcome, {session?.user?.name}, {session?.user?.email}</p> {/* Display author's name */}
+          <p>Welcome, {session?.user?.name}</p> {/* Display author's name */}
           <input
             autoFocus
             onChange={(e) => setTitle(e.target.value)}
@@ -68,13 +68,18 @@ const Draft: React.FC = () => {
         }
 
         input[type='submit'] {
-          background: #ececec;
+          background: #3b3b3b;
           border: 0;
           padding: 1rem 2rem;
+          color: #eaeaea;
         }
 
         .back {
           margin-left: 1rem;
+          background: #ececec;
+          border: 0;
+          padding: 1rem 2rem;
+          color: #3b3b3b;
         }
       `}</style>
     </Layout>
