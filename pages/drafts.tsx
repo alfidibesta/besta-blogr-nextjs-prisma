@@ -6,34 +6,27 @@ import Post, { PostProps } from "../components/Post";
 import prisma from "../lib/prisma";
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  try {
-    const session = await getSession({ req });
-    if (!session) {
-      res.statusCode = 403;
-      res.end("Unauthorized access: You need to be authenticated to view this page.");
-      return { props: { drafts: [] } };
-    }
-
-    const drafts = await prisma.post.findMany({
-      where: {
-        author: { email: session.user.email },
-        published: false,
-      },
-      include: {
-        author: {
-          select: { name: true },
-        },
-      },
-    });
-
-    return {
-      props: { drafts },
-    };
-  } catch (error) {
-    console.error("Error fetching drafts:", error);
-    res.statusCode = 500; // Internal Server Error
+  const session = await getSession({ req });
+  if (!session) {
+    res.statusCode = 403;
     return { props: { drafts: [] } };
   }
+
+  const drafts = await prisma.post.findMany({
+    where: {
+      author: { email: session.user.email },
+      published: false,
+    },
+    include: {
+      author: {
+        select: { name: true },
+      },
+    },
+  });
+
+  return {
+    props: { drafts },
+  };
 };
 
 type Props = {
